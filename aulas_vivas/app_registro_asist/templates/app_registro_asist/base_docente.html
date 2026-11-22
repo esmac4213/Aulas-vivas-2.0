@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Aulas Vivas - Asistencias{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'app_registro_asist/css/asistencias.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="marca">Aulas Vivas</div>
+        <div class="rol-badge">
+            <strong>UJAT</strong><br>
+            <span>Docente</span>
+        </div>
+    </header>
+
+    <div class="contenedor-principal">
+        <aside class="sidebar">
+            <div class="menu-titulo">MENÚ</div>
+            <a href="#" class="menu-item">Inicio</a>
+            <a href="{% url 'seleccionar_clase' %}" class="menu-item activo">
+                Registro y cierre de asistencias
+            </a>
+            <a href="#" class="menu-item">Estadísticas</a>
+            <a href="#" class="menu-item">Consulta de alumnos</a>
+            <a href="#" class="menu-item">Correcciones</a>
+        </aside>
+
+        <main class="contenido">
+            {% if messages %}
+                <div class="mensajes">
+                    {% for message in messages %}
+                        <div class="alerta">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block contenido %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="footer">
+        Universidad Juárez Autónoma de Tabasco
+    </footer>
+</body>
+</html>

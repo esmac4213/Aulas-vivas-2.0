@@ -1,0 +1,36 @@
+{% extends "app_registro_asist/base_docente.html" %}
+
+{% block titulo %}Cancelar clase{% endblock %}
+
+{% block contenido %}
+<h1>Cancelar clase</h1>
+<p class="subtitulo-seccion">Utiliza esta opción cuando la clase no se haya impartido.</p>
+
+<div class="barra-sesion">
+    <span><strong>Grupo:</strong> {{ sesion.grupo }}</span>
+    <span><strong>Asignatura:</strong> {{ sesion.asignatura }}</span>
+    <span><strong>Fecha:</strong> {{ sesion.fecha|date:"d/m/Y" }}</span>
+    <span><strong>Horario:</strong> {{ sesion.horario }}</span>
+    <span><strong>Estado de la clase:</strong> {{ sesion.get_estado_display }}</span>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="campo">
+        <label for="motivo">Motivo de la cancelación</label>
+        <textarea id="motivo" name="motivo" rows="4" placeholder="Escribe el motivo" required></textarea>
+        <span class="ayuda-texto">El motivo es obligatorio.</span>
+    </div>
+
+    <p class="ayuda-texto">La clase quedará cancelada y no se contará en los cálculos de asistencia.</p>
+    <p class="ayuda-texto">No se registrarán faltas por esta clase.</p>
+
+    <div class="fila-botones">
+        <button type="submit" class="btn btn-primario">Confirmar cancelación</button>
+        <a href="{% url 'clase_abierta' sesion.id %}" class="btn btn-secundario">
+            Volver a la lista
+        </a>
+    </div>
+</form>
+{% endblock %}

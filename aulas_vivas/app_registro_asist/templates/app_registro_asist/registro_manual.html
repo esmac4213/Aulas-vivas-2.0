@@ -1,0 +1,59 @@
+{% extends "app_registro_asist/base_docente.html" %}
+
+{% block titulo %}Registro manual{% endblock %}
+
+{% block contenido %}
+<h1>Registro manual</h1>
+<p class="subtitulo-seccion">Marca la presencia de los alumnos que siguen pendientes.</p>
+
+<div class="barra-sesion">
+    <span><strong>Grupo:</strong> {{ sesion.grupo }}</span>
+    <span><strong>Asignatura:</strong> {{ sesion.asignatura }}</span>
+    <span><strong>Fecha:</strong> {{ sesion.fecha|date:"d/m/Y" }}</span>
+    <span><strong>Horario:</strong> {{ sesion.horario }}</span>
+    <span><strong>Estado de la clase:</strong> {{ sesion.get_estado_display }}</span>
+</div>
+
+<h2>Alumnos pendientes ({{ pendientes|length }})</h2>
+
+<table class="tabla">
+    <thead>
+        <tr>
+            <th>Matrícula</th>
+            <th>Alumno</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alumno in pendientes %}
+            <tr>
+                <td>{{ alumno.matricula }}</td>
+                <td>{{ alumno.nombre_alumno }}</td>
+                <td><span class="estado-pendiente">Pendiente</span></td>
+                <td>
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="registro_id" value="{{ alumno.id }}">
+                        <button type="submit" class="btn btn-primario btn-sm">
+                            Marcar presente
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4">No hay alumnos pendientes en esta clase.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p class="ayuda-texto">Al marcar presente, el alumno se retira de esta lista.</p>
+
+<div class="fila-botones">
+    <a href="{% url 'clase_abierta' sesion.id %}" class="btn btn-secundario">
+        Volver a la lista
+    </a>
+</div>
+{% endblock %}

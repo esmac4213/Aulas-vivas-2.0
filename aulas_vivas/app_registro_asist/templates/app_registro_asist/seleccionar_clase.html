@@ -1,0 +1,55 @@
+{% extends "app_registro_asist/base_docente.html" %}
+
+{% block titulo %}Registro y cierre de asistencias - Seleccionar clase{% endblock %}
+
+{% block contenido %}
+<h1>Registro y cierre de asistencias</h1>
+<h2>Seleccionar clase</h2>
+<p class="subtitulo-seccion">Elige el grupo y la asignatura para abrir la lista de asistencia.</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="grid-dos-columnas">
+        <div class="campo">
+            <label for="grupo">Grupo</label>
+            <select id="grupo" name="grupo" required>
+                <option value="">Selecciona un grupo</option>
+                {% for g in grupos %}
+                    <option value="{{ g }}">{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="asignatura">Asignatura</label>
+            <select id="asignatura" name="asignatura" required>
+                <option value="">Selecciona una asignatura</option>
+                {% for a in asignaturas %}
+                    <option value="{{ a }}">{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="grid-dos-columnas">
+        <div class="campo">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" name="fecha" required>
+        </div>
+
+        <div class="campo">
+            <label for="horario">Horario</label>
+            <input type="text" id="horario" name="horario" placeholder="HH:MM - HH:MM" required>
+        </div>
+    </div>
+
+    <p class="ayuda-texto">Solo se muestran los grupos que tienes asignados.</p>
+
+    <div class="fila-botones">
+        <button type="submit" class="btn btn-primario">Abrir lista</button>
+    </div>
+
+    <p class="ayuda-texto">Al abrir la lista podrás registrar la asistencia mediante QR.</p>
+</form>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "app_registro_asist/base_docente.html" %}
+
+{% block titulo %}Registro y cierre de asistencias - Clase abierta{% endblock %}
+
+{% block contenido %}
+<h1>Registro y cierre de asistencias</h1>
+
+<div class="barra-sesion">
+    <span><strong>Grupo:</strong> {{ sesion.grupo }}</span>
+    <span><strong>Asignatura:</strong> {{ sesion.asignatura }}</span>
+    <span><strong>Fecha:</strong> {{ sesion.fecha|date:"d/m/Y" }}</span>
+    <span><strong>Horario:</strong> {{ sesion.horario }}</span>
+    <span class="estado-abierta">Clase {{ sesion.estado|lower }}</span>
+</div>
+
+<div class="grid-clase-abierta">
+    <div>
+        <h2>Lista de asistencia</h2>
+        <p class="ayuda-texto">
+            <strong>Presentes:</strong> {{ total_presentes }} &nbsp;&nbsp;
+            <strong>Pendientes:</strong> {{ total_pendientes }}
+        </p>
+
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Matrícula</th>
+                    <th>Alumno</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in registros %}
+                    <tr>
+                        <td>{{ reg.matricula }}</td>
+                        <td>{{ reg.nombre_alumno }}</td>
+                        <td>
+                            {% if reg.estado == "PRESENTE" %}
+                                <span class="estado-presente">Presente</span>
+                            {% elif reg.estado == "PENDIENTE" %}
+                                <span class="estado-pendiente">Pendiente</span>
+                            {% else %}
+                                <span>Ausente</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No hay alumnos registrados en esta clase.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="fila-botones">
+            <a href="{% url 'registro_manual' sesion.id %}" class="btn btn-secundario">
+                Registro manual
+            </a>
+            <a href="{% url 'cancelar_clase' sesion.id %}" class="btn btn-secundario">
+                Cancelar clase
+            </a>
+
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="cerrar_clase">
+                <button type="submit" class="btn btn-primario">Cerrar clase</button>
+            </form>
+        </div>
+
+        <p class="ayuda-texto">
+            Al cerrar la clase, los alumnos pendientes quedarán como ausentes.
+        </p>
+    </div>
+
+    <div>
+        <div class="caja-qr">
+            <h2>Lector QR</h2>
+            <div class="visor-camara">
+                <div id="qr-reader" style="width: 100%;"></div>
+                <p id="qr-estado" class="ayuda-texto">
+                    Cámara lista para activarse. Coloca el QR del alumno frente a la cámara.
+                </p>
+            </div>
+
+            <button type="button" id="btn-activar-camara" class="btn btn-primario" style="width: 100%; margin-bottom: 12px;">
+                Activar cámara
+            </button>
+
+            <form method="post" id="form-qr">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="registrar_qr">
+                <div class="campo">
+                    <label for="matricula">Matrícula detectada / manual</label>
+                    <input type="text" id="matricula" name="matricula" placeholder="Ej. 20260003" required>
+                </div>
+                <button type="submit" class="btn btn-secundario" style="width: 100%;">
+                    Registrar asistencia
+                </button>
+            </form>
+        </div>
+
+        <div class="caja-ultimo">
+            <h3>Último registro</h3>
+            {% if ultimo_alumno %}
+                <p class="ayuda-texto">
+                    <span class="estado-presente">✓ {{ ultimo_alumno }}</span> — Presente
+                </p>
+            {% else %}
+                <p class="ayuda-texto">Aún no se ha registrado asistencia en esta sesión.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+(function () {
+    const btnCamara = document.getElementById("btn-activar-camara");
+    const estadoTexto = document.getElementById("qr-estado");
+    const inputMatricula = document.getElementById("matricula");
+    const formQr = document.getElementById("form-qr");
+
+    let lector = null;
+    let camaraActiva = false;
+
+    if (!btnCamara || typeof Html5Qrcode === "undefined") {
+        return;
+    }
+
+    btnCamara.addEventListener("click", function () {
+        if (camaraActiva && lector) {
+            lector.stop().then(function () {
+                camaraActiva = false;
+                btnCamara.textContent = "Activar cámara";
+                estadoTexto.textContent = "Cámara detenida.";
+            });
+            return;
+        }
+
+        lector = new Html5Qrcode("qr-reader");
+        estadoTexto.textContent = "Solicitando permiso de cámara...";
+
+        lector.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 200, height: 200 } },
+            function (codigoLeido) {
+                // Si el QR contiene texto como "MATRICULA:20260003" o solo "20260003", limpia espacios
+                const valorLimpio = codigoLeido.includes(":")
+                    ? codigoLeido.split(":").pop().trim()
+                    : codigoLeido.trim();
+
+                inputMatricula.value = valorLimpio;
+                estadoTexto.textContent = "QR detectado: " + valorLimpio;
+
+                lector.stop().then(function () {
+                    camaraActiva = false;
+                    formQr.submit();
+                }).catch(function () {
+                    formQr.submit();
+                });
+            },
+            function () {
+                // Lectura continua por cuadro mientras no detecta un QR válido
+            }
+        ).then(function () {
+            camaraActiva = true;
+            btnCamara.textContent = "Detener cámara";
+            estadoTexto.textContent = "Escaneando... coloca el QR frente a la cámara.";
+        }).catch(function (err) {
+            estadoTexto.textContent = "No se pudo abrir la cámara (" + err + "). Puedes escribir la matrícula manualmente.";
+        });
+    });
+})();
+</script>
+{% endblock %}
