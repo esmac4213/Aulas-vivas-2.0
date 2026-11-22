@@ -1,20 +1,21 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 
+from app_nucleo.models import Alumno, Asignatura, Grupo
 from .models import RegistroAsistencia, SesionClase
 
-# CU02 - Layout 03: Selección de grupo y clase
+
 def seleccionar_clase(request):
-    grupos = ["5A", "5B", "5C"]
-    asignaturas = ["Programación", "Bases de Datos", "Métodos Numéricos"]
+    grupos = Grupo.objects.order_by("codigo")
+    asignaturas = Asignatura.objects.order_by("nombre")
 
     if request.method == "POST":
-        grupo = request.POST.get("grupo", "").strip()
-        asignatura = request.POST.get("asignatura", "").strip()
+        grupo_codigo = request.POST.get("grupo", "").strip()
+        asignatura_nombre = request.POST.get("asignatura", "").strip()
         fecha = request.POST.get("fecha", "").strip()
         horario = request.POST.get("horario", "").strip()
 
-        if not (grupo and asignatura and fecha and horario):
+        if not (grupo_codigo and asignatura_nombre and fecha and horario):
             messages.error(request, "Completa grupo, asignatura, fecha y horario.")
             return render(
                 request,
@@ -22,26 +23,23 @@ def seleccionar_clase(request):
                 {"grupos": grupos, "asignaturas": asignaturas},
             )
 
+        grupo_obj = get_object_or_404(Grupo, codigo=grupo_codigo)
+        asignatura_obj = get_object_or_404(Asignatura, nombre=asignatura_nombre)
+
         sesion = SesionClase.objects.create(
-            grupo=grupo,
-            asignatura=asignatura,
+            grupo=grupo_obj.codigo,
+            asignatura=asignatura_obj.nombre,
             fecha=fecha,
             horario=horario,
             estado="ABIERTA",
         )
 
-        # Lista inicial de ejemplo (en producción se carga desde alumnos del grupo)
-        alumnos_iniciales = [
-            ("20260001", "Ana López"),
-            ("20260002", "Carlos Pérez"),
-            ("20260003", "María García"),
-            ("20260004", "Luis Hernández"),
-        ]
-        for matricula, nombre in alumnos_iniciales:
+        alumnos_del_grupo = Alumno.objects.filter(grupo=grupo_obj).order_by("matricula")
+        for alumno in alumnos_del_grupo:
             RegistroAsistencia.objects.create(
                 sesion=sesion,
-                matricula=matricula,
-                nombre_alumno=nombre,
+                matricula=alumno.matricula,
+                nombre_alumno=alumno.nombre_completo,
                 estado="PENDIENTE",
             )
 
