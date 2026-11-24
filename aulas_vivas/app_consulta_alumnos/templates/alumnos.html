@@ -1,0 +1,67 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta y búsqueda de alumnos</title>
+  <link rel="stylesheet" href="{% static '/consulta_alumnos.css' %}">
+</head>
+<body>
+  
+
+  <!-- Barra superior -->
+  <header class="topbar">
+    <div class="brand">Aulas Vivas</div>
+    <h1 class="page-title">Consulta de alumnos</h1>
+  </header>
+
+  <!-- Contenedor principal -->
+  <div class="layout">
+    
+
+    <!-- Área de contenido -->
+    <main class="content">
+      <div class="breadcrumb">
+        CONSULTA Y BÚSQUEDA DE ALUMNOS
+      </div>
+
+      <!-- Sección editable -->
+      <section class="section-block">
+        <h2 class="section-title">Ingrese la información</h2>
+        <label for="alumno-select" class="input-label">Buscar matrícula o nombre</label>
+        <div class="select-wrapper">
+          <input
+          type="text"
+          id="alumno-input"
+          list="alumnos-lista"
+          class="custom-select"
+          placeholder="Escribe matrícula o nombre..."
+          autocomplete="off", itemid="data_alumn_input">
+
+          
+        </div>
+      </section>
+
+      <!-- Sección de solo lectura -->
+      <section class="section-block">
+        <h2 class="section-title">INFORMACIÓN DEL ALUMNO</h2>
+        <div class="readonly-cards" id="informacionAlumno">
+            <div class="info-box">Ingrese la matricula o nombre para buscar la informacion</div>
+            <div class="info-box"></div>
+            <div class="info-box"></div>
+        </div>
+      </section>
+
+      <!-- Botones de acción inferiores -->
+      <footer class="action-buttons">
+        <button type="button" class="btn btn-primary" id="btnBuscar">Buscar</button>
+        <button type="button" class="btn btn-secondary" id = "btnCambiar">Ver historial de faltas</button>
+      </footer>
+    </main>
+
+  </div>
+  <script src="{% static '/consulta_alumnos.js' %}"></script>
+</body>
+</html>
