@@ -62,6 +62,7 @@ def clase_abierta(request, sesion_id):
         # Registrar asistencia por matrícula (desde lector QR o entrada manual)
         if accion == "registrar_qr" and sesion.estado == "ABIERTA":
             matricula = request.POST.get("matricula", "").strip()
+            print(matricula)
             registro = RegistroAsistencia.objects.filter(
                 sesion=sesion, matricula=matricula
             ).first()

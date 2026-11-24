@@ -144,10 +144,16 @@
             { facingMode: "environment" },
             { fps: 10, qrbox: { width: 200, height: 200 } },
             function (codigoLeido) {
-                // Si el QR contiene texto como "MATRICULA:20260003" o solo "20260003", limpia espacios
-                const valorLimpio = codigoLeido.includes(":")
-                    ? codigoLeido.split(":").pop().trim()
-                    : codigoLeido.trim();
+                
+                // Si el QR contiene texto como "MATRICULA=202H60003&" o solo "20260003", limpia espacios
+                const texto = codigoLeido.trim();
+                const valorLimpio = texto.includes("=")
+                    ? texto
+                        .slice(texto.indexOf("=") + 1) // Todo lo que está DESPUÉS del "="
+                        .split("=")[1]
+                        .split("&")[0]                 // Corta justo ANTES del primer "&" (si lo hay)
+                        .trim()
+                    : texto;
 
                 inputMatricula.value = valorLimpio;
                 estadoTexto.textContent = "QR detectado: " + valorLimpio;

@@ -5,7 +5,7 @@ class Command(BaseCommand):
     help = "Carga datos hipotéticos iniciales de grupos, asignaturas y alumnos."
 
     def handle(self, *args, **options):
-        codigos_grupos = ["5A", "5B", "5C"]
+        codigos_grupos = ["5A", "5B"]
         grupos_creados = {}
         for codigo in codigos_grupos:
             grupo_obj, _ = Grupo.objects.get_or_create(codigo=codigo)
@@ -24,6 +24,7 @@ class Command(BaseCommand):
             ("20260002", "Carlos Pérez"),
             ("20260003", "María García"),
             ("20260004", "Luis Hernández"),
+            ("242H17021", "Jose Julian")
         ]
         for matricula, nombre_completo in alumnos_5a:
             Alumno.objects.get_or_create(
