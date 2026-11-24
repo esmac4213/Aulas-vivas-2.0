@@ -1,0 +1,160 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aulas Vivas - Semáforo de faltas</title>
+
+    <link rel="stylesheet" href="{% static 'app_estadisticas/semaforo.css' %}">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- ENCABEZADO -->
+    <header class="top-header">
+        <strong>Aulas Vivas</strong>
+        <span>UJAT | Docente</span>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+            <nav>
+                <a href="#">Inicio</a>
+                <a href="#">Registro y cierre de asistencias</a>
+                <a href="{% url 'estadisticas' %}" class="active">Estadísticas</a>
+                <a href="#">Consulta de alumnos</a>
+                <a href="#">Correcciones</a>
+            </nav>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="content">
+
+            <h1>Semaforo de faltas</h1>
+
+            <p class="description">
+                Consulta el porcentaje de faltas de los alumnos de tus grupos.
+            </p>
+
+            <p class="group-info">
+                 Grupo: {{ grupo }} |
+                 Asignatura: {{ asignatura }} |
+                Consulta: {{ fecha_inicio|date:"d/m/Y" }} - {{ fecha_fin|date:"d/m/Y" }}
+            </p>
+
+            <!-- TABLA DE ALUMNOS -->
+            <div class="table-container">
+
+                <table class="students-table">
+
+                    <thead>
+                        <tr>
+                            <th>Matrícula</th>
+                            <th>Alumno</th>
+                            <th>Clases consideradas</th>
+                            <th>Faltas</th>
+                            <th>% de faltas</th>
+                            <th>Semáforo</th>
+                        </tr>
+                    </thead>
+
+<tbody>
+
+    {% for alumno in alumnos %}
+
+    <tr>
+        <td>{{ alumno.matricula }}</td>
+        <td>{{ alumno.nombre }}</td>
+        <td>{{ alumno.clases }}</td>
+        <td>{{ alumno.faltas }}</td>
+        <td>{{ alumno.porcentaje }}%</td>
+        <td>
+            <span class="status {{ alumno.color }}">
+                <span class="status-dot"></span>
+                {{ alumno.estado }}
+            </span>
+        </td>
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="6">No hay alumnos para mostrar.</td>
+    </tr>
+
+    {% endfor %}
+
+</tbody>
+
+
+                </table>
+
+            </div>
+
+            <!-- CRITERIOS DEL SEMAFORO -->
+<section class="criteria">
+
+    <h3>Criterios del semáforo</h3>
+
+    <div class="criterion">
+        <span class="legend-dot green-dot"></span>
+        <span>
+            Verde: menos de
+            {{ configuracion.limite_amarillo|floatformat:'-2' }}% de faltas.
+        </span>
+    </div>
+
+    <div class="criterion">
+        <span class="legend-dot yellow-dot"></span>
+        <span>
+            Amarillo: desde
+            {{ configuracion.limite_amarillo|floatformat:'-2' }}%
+            y menos de
+            {{ configuracion.limite_rojo|floatformat:'-2' }}%.
+        </span>
+    </div>
+
+    <div class="criterion">
+        <span class="legend-dot red-dot"></span>
+        <span>
+            Rojo:
+            {{ configuracion.limite_rojo|floatformat:'-2' }}%
+            o más de faltas.
+        </span>
+    </div>
+
+</section>
+
+            <p class="note">
+                Solo se consideran clases cerradas e impartidas.
+            </p>
+
+            <!-- REGRESAR A ESTADISTICAS -->
+            <div class="navigation-button">
+                <a href="{% url 'estadisticas' %}">
+                    <button>Volver a estadísticas</button>
+                </a>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- PIE DE PAGINA -->
+    <footer>
+        Universidad Juárez Autónoma de Tabasco
+    </footer>
+
+</div>
+
+</body>
+</html>

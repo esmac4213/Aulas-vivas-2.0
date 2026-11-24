@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'app_login',
     'app_registro_asist',
     'app_nucleo',
+    'app_estadisticas.apps.AppEstadisticasConfig',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,166 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aulas Vivas - Configuración del semáforo</title>
+
+    <link rel="stylesheet" href="{% static 'app_estadisticas/config_semaforo.css' %}">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- ENCABEZADO -->
+    <header class="top-header">
+        <strong>Aulas Vivas</strong>
+        <span>UJAT | Administrador</span>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ LATERAL -->
+        <aside class="sidebar">
+            <nav>
+                <a href="#">Inicio</a>
+                <a href="{% url 'estadisticas' %}">Estadísticas</a>
+                <a href="#">Generar reportes</a>
+                <a href="#">Correcciones</a>
+                <a href="{% url 'configuracion_semaforo' %}" class="active">Configuración</a>
+            </nav>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="content">
+
+            <h1>Configuración de semáforo</h1>
+
+            <p class="description">
+                Define los límites del porcentaje de faltas.
+            </p>
+
+            <!-- MENSAJES -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <p class="{{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- FORMULARIO -->
+            <form method="POST" class="configuration-form">
+
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="limite_amarillo">
+                        Límite para amarillo (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="limite_amarillo"
+                        name="limite_amarillo"
+                        min="0.01"
+                        max="100"
+                        step="0.01"
+                        value="{{ configuracion.limite_amarillo|floatformat:'-2' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="limite_rojo">
+                        Límite para rojo (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="limite_rojo"
+                        name="limite_rojo"
+                        min="0.01"
+                        max="100"
+                        step="0.01"
+                        value="{{ configuracion.limite_rojo|floatformat:'-2' }}"
+                        required
+                    >
+                </div>
+
+                <p class="validation-info">
+                    Los valores deben ser mayores que 0 y no superar 100.
+                    El primer límite debe ser menor que el segundo.
+                </p>
+
+                <!-- CRITERIOS RESULTANTES -->
+                <section class="criteria">
+
+                    <h2>Criterios resultantes</h2>
+
+                    <div class="criterion">
+                        <span class="legend-dot green-dot"></span>
+                        <span>
+                            Verde: menos de
+                            {{ configuracion.limite_amarillo|floatformat:'-2' }}%
+                            de faltas.
+                        </span>
+                    </div>
+
+                    <div class="criterion">
+                        <span class="legend-dot yellow-dot"></span>
+                        <span>
+                            Amarillo: desde
+                            {{ configuracion.limite_amarillo|floatformat:'-2' }}%
+                            y menos de
+                            {{ configuracion.limite_rojo|floatformat:'-2' }}%.
+                        </span>
+                    </div>
+
+                    <div class="criterion">
+                        <span class="legend-dot red-dot"></span>
+                        <span>
+                            Rojo:
+                            {{ configuracion.limite_rojo|floatformat:'-2' }}%
+                            o más de faltas.
+                        </span>
+                    </div>
+
+                </section>
+
+                <!-- BOTONES -->
+                <div class="form-buttons">
+
+                    <button type="submit" class="btn-save">
+                        Guardar configuración
+                    </button>
+
+                    <a href="{% url 'semaforo' %}" class="btn-back">
+                        Volver al semáforo
+                    </a>
+
+                </div>
+
+            </form>
+
+            <p class="note">
+                Los nuevos límites se aplicarán en las próximas consultas.
+            </p>
+
+        </main>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        Universidad Juárez Autónoma de Tabasco
+    </footer>
+
+</div>
+
+</body>
+</html>
