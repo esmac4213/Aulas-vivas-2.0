@@ -1,120 +1,18 @@
 body {
-    position: relative;
     background-color: #f0f2f5;
     font-family: Arial, sans-serif;
-    overflow: hidden; /* Evita el scroll */
 }
-* {
-    position: relative;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-.login-header {
-    margin-top: 1px;  
-    transform: translate(0, -280px);
-    top: 0px;
-    position: absolute;
-    width: 100vw;
-    display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center;     /* Centra verticalmente */
-    background-color: #ffffff;
-}
+
 .login-container {
-    width: 400px;
-    height: 340px; 
-    display: flex; 
-    flex-direction: column;
-    justify-content: center; /* Centrado horizontal */
-    margin: 280px auto; /* Centrado horizontal */
-    padding: 20px;
+    width: 300px;
+    margin: 100px auto;
+    padding: 30px;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-h1 {
-    text-align: center;
-    margin-bottom: -10px;
-    font-size: 40px;
-    color: #333333;
-}
-
-h2 {
-    flex: 1;
-    padding: 10px;
-    box-sizing: border-box;
-    flex-direction: column;
-    text-align: left;
-    margin-bottom: 1%;
-    font-size: 30px;
-    color: #333333;
-}
-
-h3 {
-    flex: 1;
-    padding: 10px;
-    flex-direction: column;
-    text-align: right;
-    margin-bottom: 1%;
-    font-size: 20px;
-    color: #333333;
-}
-p {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 18px;
-    padding: 10px;
-    color: #666666;
-}
-label {
-    display: block;
-    width: 100%;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333333;
-}
-input {
-    width: 90%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
-button {
-    width: 100%;
-    padding: 15px;
-    background-color: #9c0202;
-    color: #ffffff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 22px;
-}
-
-.encabezado {
-    background-color: #ffffff;
-    text-align: left;
-    padding: 1px   ;
 }
 
 .form-field {
     margin-bottom: 15px;
     
-}
-img {
-    background-image: url('../../img/icono.png');
-    width: 100px;
-    height: 100px;
-    margin-bottom: 20px;
-}
-footer {
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    background-color: #ffffff;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-    color: #666666;
 }
