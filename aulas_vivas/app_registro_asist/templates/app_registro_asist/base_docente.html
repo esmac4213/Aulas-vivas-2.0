@@ -19,13 +19,12 @@
     <div class="contenedor-principal">
         <aside class="sidebar">
             <div class="menu-titulo">MENÚ</div>
-            <a href="#" class="menu-item">Inicio</a>
-            <a href="{% url 'seleccionar_clase' %}" class="menu-item activo">
-                Registro y cierre de asistencias
-            </a>
-            <a href="#" class="menu-item">Estadísticas</a>
-            <a href="#" class="menu-item">Consulta de alumnos</a>
-            <a href="#" class="menu-item">Correcciones</a>
+                <a href="#"class="menu-item">Inicio</a>
+                <a href="/asistencias/" class="menu-item">Registro y cierre de asistencias</a>
+                <a href="/estadisticas" class="menu-item">Estadísticas</a>
+                <a href="#"class="menu-item">Consulta de alumnos</a>
+                <a href="#"class="menu-item">Correcciones</a>
+                <a href="{% url 'configuracion_semaforo' %}" class="menu-item">Configuración</a>
         </aside>
 
         <main class="contenido">

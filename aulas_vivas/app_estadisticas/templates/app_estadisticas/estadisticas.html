@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aulas Vivas - Estadísticas</title>
+
+    <link rel="stylesheet" href="{% static 'app_estadisticas/estadisticas.css' %}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- ENCABEZADO -->
+    <header class="top-header">
+        <strong>Aulas Vivas</strong>
+        <span>UJAT | Docente</span>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+            <nav>
+                <a href="#">Inicio</a>
+                <a href="/asistencias/">Registro y cierre de asistencias</a>
+                <a href="#" class="active">Estadísticas</a>
+                <a href="#">Consulta de alumnos</a>
+                <a href="#">Correcciones</a>
+                <a href="{% url 'configuracion_semaforo' %}" class="active">Configuración</a>
+
+            </nav>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="content">
+
+            <div class="title-row">
+                <div>
+                    <h1>Estadisticas</h1>
+
+                    <p class="group-info">
+                        Grupo: 5A |
+                        Asignatura: Programacion |
+                        Consulta: 09-13/11/2026
+                    </p>
+
+                    <div class="totals">
+                        <span>Clases consideradas: <strong>12</strong></span>
+                        <span>Alumnos: <strong>4</strong></span>
+                        <span>Asistencias: <strong>47</strong></span>
+                        <span>Faltas: <strong>1</strong></span>
+                    </div>
+
+                    <small>
+                        Solo se consideran clases cerradas e impartidas.
+                    </small>
+                </div>
+
+                <div class="top-buttons">
+                    <button onclick="location.reload()">Actualizar</button>
+                    <button class="filter-button"
+                            onclick="alert('Los filtros se configuraran posteriormente.')">
+                        Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- CUATRO GRAFICAS -->
+            <section class="charts-grid">
+
+                <div class="chart-card">
+                    <h3>Faltas y asistencias</h3>
+                    <div class="chart-container">
+                        <canvas id="chartAttendance"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Alumnos con mas faltas</h3>
+                    <div class="chart-container">
+                        <canvas id="chartStudents"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Grupos con mas faltas</h3>
+                    <div class="chart-container">
+                        <canvas id="chartGroups"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Faltas durante la semana</h3>
+                    <div class="chart-container">
+                        <canvas id="chartWeek"></canvas>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- BOTON AL SEMAFORO -->
+            <div class="navigation-button">
+                <a href="{% url 'semaforo' %}">
+                    <button>Ver semaforo de faltas</button>
+                </a>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- PIE DE PAGINA -->
+    <footer>
+        Universidad Juárez Autónoma de Tabasco
+    </footer>
+
+</div>
+
+<!-- CONFIGURACION DE LAS GRAFICAS -->
+<script>
+
+// Grafica de faltas y asistencias
+new Chart(document.getElementById('chartAttendance'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Faltas', 'Asistencias'],
+        datasets: [{
+            data: [1, 47],
+            backgroundColor: ['#a80000', '#555555'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+});
+
+// Alumnos con mas faltas
+new Chart(document.getElementById('chartStudents'), {
+    type: 'bar',
+    data: {
+        labels: ['Carlos Pérez'],
+        datasets: [{
+            label: 'Faltas',
+            data: [1],
+            backgroundColor: '#a80000'
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 2,
+                ticks: { stepSize: 0.25 }
+            }
+        }
+    }
+});
+
+// Grupos con mas faltas
+new Chart(document.getElementById('chartGroups'), {
+    type: 'bar',
+    data: {
+        labels: ['B17'],
+        datasets: [{
+            label: 'Faltas',
+            data: [1],
+            backgroundColor: '#a80000'
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 2
+            }
+        }
+    }
+});
+
+// Faltas durante la semana
+new Chart(document.getElementById('chartWeek'), {
+    type: 'line',
+    data: {
+        labels: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'],
+        datasets: [{
+            label: 'Frecuencia de faltas',
+            data: [0, 1, 0, 0, 0],
+            borderColor: '#a80000',
+            backgroundColor: '#a80000',
+            tension: 0,
+            pointRadius: 4
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 2,
+                ticks: { stepSize: 0.25 }
+            }
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>

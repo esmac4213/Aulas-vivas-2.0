@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from app_nucleo.models import Alumno, Asignatura, Grupo
 from .models import RegistroAsistencia, SesionClase
+from app_estadisticas.views import estadisticas
 
 
 def seleccionar_clase(request):
@@ -152,3 +153,6 @@ def cancelar_clase(request, sesion_id):
         "app_registro_asist/cancelar_clase.html",
         {"sesion": sesion},
     )
+
+def estadisticas (request):
+    return estadisticas
