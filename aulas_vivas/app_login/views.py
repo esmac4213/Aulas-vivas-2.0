@@ -9,7 +9,7 @@ from .models import RolUsuario
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect("inicio")
+        return redirect("seleccionar_clase")
 
     if request.method == "POST":
         form = LoginForm(request.POST)
