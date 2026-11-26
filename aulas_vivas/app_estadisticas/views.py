@@ -1,6 +1,5 @@
-from datetime import date
-from django.db.models import Count, Q
-from app_registro_asist.models import RegistroAsistencia
+from django.db.models import Count, Max, Min, Q
+from app_registro_asist.models import RegistroAsistencia, SesionClase
 from decimal import Decimal
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -10,11 +9,74 @@ from.models import ConfiguracionSemaforo
 
 # CU05-ESTADISTICAS
 def estadisticas(request):
-    return render(
-        request,
-        'app_estadisticas/estadisticas.html'
+    registros = RegistroAsistencia.objects.filter(
+        sesion__estado='CERRADA',
+        estado__in=['PRESENTE', 'AUSENTE'],
+    )
+    sesiones = SesionClase.objects.filter(
+        estado='CERRADA',
+        registros__estado__in=['PRESENTE', 'AUSENTE'],
+    ).distinct()
+    totales = registros.aggregate(
+        asistencias=Count('id', filter=Q(estado='PRESENTE')),
+        faltas=Count('id', filter=Q(estado='AUSENTE')),
+    )
+    rango_fechas = sesiones.aggregate(
+        fecha_inicio=Min('fecha'),
+        fecha_fin=Max('fecha'),
     )
 
+    alumnos_con_faltas = (
+        registros.values('matricula', 'nombre_alumno')
+        .annotate(faltas=Count('id', filter=Q(estado='AUSENTE')))
+        .filter(faltas__gt=0)
+        .order_by('-faltas', 'nombre_alumno')[:5]
+    )
+    grupos_con_faltas = (
+        registros.values('sesion__grupo')
+        .annotate(faltas=Count('id', filter=Q(estado='AUSENTE')))
+        .filter(faltas__gt=0)
+        .order_by('-faltas', 'sesion__grupo')
+    )
+
+    faltas_por_dia = [0] * 7
+    for fecha in registros.filter(estado='AUSENTE').values_list(
+        'sesion__fecha', flat=True
+    ):
+        faltas_por_dia[fecha.weekday()] += 1
+
+    chart_data = {
+        'attendance': [totales['faltas'], totales['asistencias']],
+        'students': {
+            'labels': [alumno['nombre_alumno'] for alumno in alumnos_con_faltas],
+            'values': [alumno['faltas'] for alumno in alumnos_con_faltas],
+        },
+        'groups': {
+            'labels': [grupo['sesion__grupo'] for grupo in grupos_con_faltas],
+            'values': [grupo['faltas'] for grupo in grupos_con_faltas],
+        },
+        'week': {
+            'labels': [
+                'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes',
+                'Sábado', 'Domingo',
+            ],
+            'values': faltas_por_dia,
+        },
+    }
+
+    return render(
+        request,
+        'app_estadisticas/estadisticas.html',
+        {
+            'clases': sesiones.count(),
+            'alumnos': registros.values('matricula').distinct().count(),
+            'asistencias': totales['asistencias'],
+            'faltas': totales['faltas'],
+            'fecha_inicio': rango_fechas['fecha_inicio'],
+            'fecha_fin': rango_fechas['fecha_fin'],
+            'chart_data': chart_data,
+        },
+    )
 
 
 # CU06- SEMAFORO DE FALTAS
@@ -22,20 +84,14 @@ def semaforo(request):
 
     configuracion = ConfiguracionSemaforo.obtener_configuracion()
 
-    # Filtros de la consulta
-    grupo = '5A'
-    asignatura = 'Programación'
-    fecha_inicio = date(2026, 11, 9)
-    fecha_fin = date(2026, 11, 13)
-
-    # Obtener asistencias reales de las sesiones cerradas
+    sesiones = SesionClase.objects.filter(
+        estado='CERRADA',
+        registros__estado__in=['PRESENTE', 'AUSENTE'],
+    ).distinct()
     registros = (
         RegistroAsistencia.objects.filter(
-            sesion__grupo=grupo,
-            sesion__asignatura=asignatura,
-            sesion__fecha__range=(fecha_inicio, fecha_fin),
-            sesion__estado='CERRADA',
-            estado__in=['PRESENTE', 'AUSENTE']
+            sesion__in=sesiones,
+            estado__in=['PRESENTE', 'AUSENTE'],
         )
         .values('matricula', 'nombre_alumno')
         .annotate(
@@ -88,49 +144,14 @@ def semaforo(request):
         {
             'configuracion': configuracion,
             'alumnos': alumnos,
-            'grupo': grupo,
-            'asignatura': asignatura,
-            'fecha_inicio': fecha_inicio,
-            'fecha_fin': fecha_fin
-        }
-    )
-
-
-    # Calcular porcentaje y determinar el color
-    for alumno in alumnos:
-
-        if alumno['clases'] > 0:
-
-            porcentaje = (
-                Decimal(alumno['faltas']) /
-                Decimal(alumno['clases'])
-            ) * Decimal('100')
-
-        else:
-            porcentaje = Decimal('0')
-
-        alumno['porcentaje'] = porcentaje.quantize(
-            Decimal('0.01')
-        )
-
-        if alumno['porcentaje'] < configuracion.limite_amarillo:
-            alumno['estado'] = 'Verde'
-            alumno['color'] = 'green'
-
-        elif alumno['porcentaje'] < configuracion.limite_rojo:
-            alumno['estado'] = 'Amarillo'
-            alumno['color'] = 'yellow'
-
-        else:
-            alumno['estado'] = 'Rojo'
-            alumno['color'] = 'red'
-
-    return render(
-        request,
-        'app_estadisticas/semaforo.html',
-        {
-            'configuracion': configuracion,
-            'alumnos': alumnos
+            'grupo': 'Todos',
+            'asignatura': 'Todas',
+            'fecha_inicio': sesiones.aggregate(fecha_inicio=Min('fecha'))[
+                'fecha_inicio'
+            ],
+            'fecha_fin': sesiones.aggregate(fecha_fin=Max('fecha'))[
+                'fecha_fin'
+            ],
         }
     )
 
@@ -161,3 +182,6 @@ def configuracion_semaforo(request):
         'app_estadisticas/config_semaforo.html',
         {'configuracion': configuracion}
     )
+
+def cerrar_sesion(request):
+    pass

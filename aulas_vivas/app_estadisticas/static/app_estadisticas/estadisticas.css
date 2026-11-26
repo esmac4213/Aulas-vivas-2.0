@@ -11,6 +11,14 @@ html, body {
     height: 100%;
     margin: 0;
 }
+.menu-item {
+    display: block;
+    padding: 12px 18px;
+    color: var(--texto-principal);
+    text-decoration: none;
+    font-size: 0.92rem;
+    border-left: 4px solid transparent;
+}
 
 body {
     font-family: Arial, Helvetica, sans-serif;

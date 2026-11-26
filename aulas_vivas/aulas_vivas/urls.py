@@ -22,5 +22,6 @@ urlpatterns = [
     path('', views.login, name='login'),
     path('admin/', admin.site.urls),
     path("asistencias/", include("app_registro_asist.urls")),
-    path("estadisticas/",include("app_estadisticas.urls"), name="estadisticas")
+    path("estadisticas/",include("app_estadisticas.urls"), name="estadisticas"),
+    path("consulta_alumno/", include("app_consulta_alumnos.urls"), name= "consulta_alumnos")
 ]

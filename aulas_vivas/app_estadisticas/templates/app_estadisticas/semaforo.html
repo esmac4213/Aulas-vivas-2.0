@@ -28,11 +28,12 @@
         <!-- MENU LATERAL -->
         <aside class="sidebar">
             <nav>
-                <a href="#">Inicio</a>
-                <a href="#">Registro y cierre de asistencias</a>
-                <a href="{% url 'estadisticas' %}" class="active">Estadísticas</a>
-                <a href="#">Consulta de alumnos</a>
-                <a href="#">Correcciones</a>
+                <a href="#"class="menu-item">Inicio</a>
+                <a href="/asistencias/" class="menu-item">Registro y cierre de asistencias</a>
+                <a href="/estadisticas" class="menu-item">Estadísticas</a>
+                <a href="/consulta_alumno"class="menu-item">Consulta de alumnos</a>
+                <a href="#"class="menu-item">Correcciones</a>
+                <a href="{% url 'configuracion_semaforo' %}" class="menu-item">Configuración</a>
             </nav>
         </aside>
 
@@ -48,7 +49,12 @@
             <p class="group-info">
                  Grupo: {{ grupo }} |
                  Asignatura: {{ asignatura }} |
-                Consulta: {{ fecha_inicio|date:"d/m/Y" }} - {{ fecha_fin|date:"d/m/Y" }}
+                Consulta:
+                {% if fecha_inicio %}
+                    {{ fecha_inicio|date:"d/m/Y" }} - {{ fecha_fin|date:"d/m/Y" }}
+                {% else %}
+                    Sin clases cerradas
+                {% endif %}
             </p>
 
             <!-- TABLA DE ALUMNOS -->

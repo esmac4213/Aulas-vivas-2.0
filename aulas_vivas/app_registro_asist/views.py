@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
-
+from datetime import *
 from app_nucleo.models import Alumno, Asignatura, Grupo
 from .models import RegistroAsistencia, SesionClase
 from app_estadisticas.views import estadisticas
@@ -26,7 +26,13 @@ def seleccionar_clase(request):
 
         grupo_obj = get_object_or_404(Grupo, codigo=grupo_codigo)
         asignatura_obj = get_object_or_404(Asignatura, nombre=asignatura_nombre)
-
+        now=now = datetime.now()
+        mes=now.month
+        año=now.year
+        if mes >= 6 and mes <= 12:
+            ciclo=2
+        else:
+            ciclo=1
         sesion = SesionClase.objects.create(
             grupo=grupo_obj.codigo,
             asignatura=asignatura_obj.nombre,
@@ -35,7 +41,7 @@ def seleccionar_clase(request):
             estado="ABIERTA",
         )
 
-        alumnos_del_grupo = Alumno.objects.filter(grupo=grupo_obj).order_by("matricula")
+        alumnos_del_grupo = Alumno.objects.filter(grupo=grupo_obj, grupo__periodoEscolar__fechaInicio__year=año, grupo__periodoEscolar__ciclo=ciclo).order_by("matricula")
         for alumno in alumnos_del_grupo:
             RegistroAsistencia.objects.create(
                 sesion=sesion,
