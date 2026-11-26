@@ -1,14 +1,36 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
-from datetime import *
-from app_nucleo.models import Alumno, Asignatura, Grupo
+from django.utils import timezone
+from app_nucleo.models import Alumno, Asignatura, Grupo, PeriodoEscolar
 from .models import RegistroAsistencia, SesionClase
 from app_estadisticas.views import estadisticas
 
 
 def seleccionar_clase(request):
-    grupos = Grupo.objects.order_by("codigo")
+    fecha_hoy = timezone.localdate()
+    periodo_actual = (
+        PeriodoEscolar.objects.filter(
+            fechaInicio__lte=fecha_hoy,
+            fechaFin__gte=fecha_hoy,
+        )
+        .order_by("-fechaInicio", "-pk")
+        .first()
+    )
+    grupos = (
+        Grupo.objects.filter(periodoEscolar=periodo_actual)
+        .order_by("codigo")
+        .values_list("codigo", flat=True)
+        .distinct()
+        if periodo_actual
+        else []
+    )
     asignaturas = Asignatura.objects.order_by("nombre")
+    context = {
+        "grupos": grupos,
+        "asignaturas": asignaturas,
+        "periodo_actual": periodo_actual,
+        "fecha_hoy": fecha_hoy,
+    }
 
     if request.method == "POST":
         grupo_codigo = request.POST.get("grupo", "").strip()
@@ -16,32 +38,54 @@ def seleccionar_clase(request):
         fecha = request.POST.get("fecha", "").strip()
         horario = request.POST.get("horario", "").strip()
 
-        if not (grupo_codigo and asignatura_nombre and fecha and horario):
-            messages.error(request, "Completa grupo, asignatura, fecha y horario.")
+        if not periodo_actual:
+            messages.error(
+                request,
+                "No hay un periodo escolar configurado para la fecha actual.",
+            )
             return render(
                 request,
                 "app_registro_asist/seleccionar_clase.html",
-                {"grupos": grupos, "asignaturas": asignaturas},
+                context,
             )
 
-        grupo_obj = get_object_or_404(Grupo, codigo=grupo_codigo)
+        if not (grupo_codigo and asignatura_nombre and fecha and horario):
+            messages.error(
+                request,
+                "Completa grupo, asignatura, fecha y horario.",
+            )
+            return render(
+                request,
+                "app_registro_asist/seleccionar_clase.html",
+                context,
+            )
+
+        grupo_obj = Grupo.objects.filter(
+            codigo=grupo_codigo,
+            periodoEscolar=periodo_actual,
+        ).first()
+        if not grupo_obj:
+            messages.error(
+                request,
+                "El grupo seleccionado no pertenece al periodo actual.",
+            )
+            return render(
+                request,
+                "app_registro_asist/seleccionar_clase.html",
+                context,
+            )
+
         asignatura_obj = get_object_or_404(Asignatura, nombre=asignatura_nombre)
-        now=now = datetime.now()
-        mes=now.month
-        año=now.year
-        if mes >= 6 and mes <= 12:
-            ciclo=2
-        else:
-            ciclo=1
         sesion = SesionClase.objects.create(
             grupo=grupo_obj.codigo,
+            periodoEscolar=periodo_actual,
             asignatura=asignatura_obj.nombre,
             fecha=fecha,
             horario=horario,
             estado="ABIERTA",
         )
 
-        alumnos_del_grupo = Alumno.objects.filter(grupo=grupo_obj, grupo__periodoEscolar__fechaInicio__year=año, grupo__periodoEscolar__ciclo=ciclo).order_by("matricula")
+        alumnos_del_grupo = Alumno.objects.filter(grupo=grupo_obj).order_by("matricula")
         for alumno in alumnos_del_grupo:
             RegistroAsistencia.objects.create(
                 sesion=sesion,
@@ -55,7 +99,7 @@ def seleccionar_clase(request):
     return render(
         request,
         "app_registro_asist/seleccionar_clase.html",
-        {"grupos": grupos, "asignaturas": asignaturas},
+        context,
     )
 
 

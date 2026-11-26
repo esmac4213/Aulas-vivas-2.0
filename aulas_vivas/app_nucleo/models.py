@@ -1,5 +1,7 @@
 from django.db import models
-from datetime import *
+from datetime import date, datetime
+
+
 class PeriodoEscolar(models.Model):
     def periodoautoini():
             fecha=datetime.now()
@@ -16,12 +18,25 @@ class PeriodoEscolar(models.Model):
                 else:
                     return date (datetime.now().year,5,30 )
     idperiodoescolar=models.IntegerField( unique=True, primary_key=True)
+    nombre=models.CharField(max_length=50, null=False, blank=True, default="")
+    fechacreacion=models.DateField(null=False, default=date.today)
     fechaInicio=models.DateField( null=False, default=periodoautoini)
     fechaFin=models.DateField( null=False, default=periodoautofin)
     ciclo=models.IntegerField( choices=[(1,"1"),(2,"2")], null=False)
-    
+
+    def save(self, *args, **kwargs):
+        if not self.nombre:
+            self.nombre = f"Ciclo {self.ciclo} - {self.fechaInicio.year}"
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = set(kwargs["update_fields"]) | {"nombre"}
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.nombre} | {self.fechacreacion:%d/%m/%Y}"
+
+
 class Grupo(models.Model):
-    codigo = models.CharField(max_length=20, unique=True)
+    codigo = models.CharField(max_length=20)
     periodoEscolar= models.ForeignKey(
         PeriodoEscolar,
         on_delete=models.CASCADE,

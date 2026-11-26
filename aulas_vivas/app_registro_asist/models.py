@@ -1,4 +1,5 @@
 from django.db import models
+from app_nucleo.models import PeriodoEscolar
 
 class SesionClase(models.Model):
     ESTADO_CHOICES = [
@@ -8,6 +9,13 @@ class SesionClase(models.Model):
     ]
 
     grupo = models.CharField(max_length=20)
+    periodoEscolar = models.ForeignKey(
+        PeriodoEscolar,
+        on_delete=models.SET_NULL,
+        related_name="sesiones",
+        null=True,
+        blank=True,
+    )
     asignatura = models.CharField(max_length=100)
     fecha = models.DateField()
     horario = models.CharField(max_length=30)

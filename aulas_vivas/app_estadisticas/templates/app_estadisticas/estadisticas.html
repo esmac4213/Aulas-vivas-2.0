@@ -26,13 +26,12 @@
         <!-- MENU LATERAL -->
         <aside class="sidebar">
             <nav>
-                <a href="#"class="menu-item">Inicio</a>
+                <a href="#" class="menu-item">Inicio</a>
                 <a href="/asistencias/" class="menu-item">Registro y cierre de asistencias</a>
-                <a href="/estadisticas" class="menu-item">Estadísticas</a>
-                <a href="/consulta_alumno"class="menu-item">Consulta de alumnos</a>
-                <a href="#"class="menu-item">Correcciones</a>
+                <a href="/estadisticas/" class="menu-item active">Estadísticas</a>
+                <a href="/consulta_alumno/" class="menu-item">Consulta de alumnos</a>
+                <a href="#" class="menu-item">Correcciones</a>
                 <a href="{% url 'configuracion_semaforo' %}" class="menu-item">Configuración</a>
-
             </nav>
         </aside>
 
@@ -41,11 +40,12 @@
 
             <div class="title-row">
                 <div>
-                    <h1>Estadisticas</h1>
+                    <h1>Estadísticas</h1>
 
                     <p class="group-info">
-                        Grupo: Todos |
-                        Asignatura: Todas |
+                        Grupo: <strong>{{ filtros_activos.grupo_nombre|default:"Todos" }}</strong> |
+                        Asignatura: <strong>{{ filtros_activos.asignatura|default:"Todas" }}</strong> |
+                        Periodo: <strong>{{ filtros_activos.periodo_nombre|default:"Todos" }}</strong> |
                         Consulta:
                         {% if fecha_inicio %}
                             {{ fecha_inicio|date:"d/m/Y" }} - {{ fecha_fin|date:"d/m/Y" }}
@@ -67,11 +67,8 @@
                 </div>
 
                 <div class="top-buttons">
-                    <button onclick="location.reload()">Actualizar</button>
-                    <button class="filter-button"
-                            onclick="alert('Los filtros se configuraran posteriormente.')">
-                        Filtros
-                    </button>
+                    <button type="button" onclick="location.reload()">Actualizar</button>
+                    <a class="filter-button" href="{% url 'filtros' %}">Filtros</a>
                 </div>
             </div>
 
@@ -86,14 +83,14 @@
                 </div>
 
                 <div class="chart-card">
-                    <h3>Alumnos con mas faltas</h3>
+                    <h3>Alumnos con más faltas</h3>
                     <div class="chart-container">
                         <canvas id="chartStudents"></canvas>
                     </div>
                 </div>
 
                 <div class="chart-card">
-                    <h3>Grupos con mas faltas</h3>
+                    <h3>Grupos con más faltas</h3>
                     <div class="chart-container">
                         <canvas id="chartGroups"></canvas>
                     </div>
@@ -111,7 +108,7 @@
             <!-- BOTON AL SEMAFORO -->
             <div class="navigation-button">
                 <a href="{% url 'semaforo' %}">
-                    <button>Ver semaforo de faltas</button>
+                    <button type="button">Ver semáforo de faltas</button>
                 </a>
             </div>
 
@@ -220,7 +217,6 @@ new Chart(document.getElementById('chartWeek'), {
         }
     }
 });
-
 </script>
 
 </body>
